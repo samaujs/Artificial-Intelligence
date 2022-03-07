@@ -14,8 +14,6 @@ import pprint
 import copy
 import random
 
-import matplotlib.pyplot as plt
-
 # Import the dependency files
 from algorithms import value_iteration, policy_iteration
 from config import *
@@ -24,48 +22,59 @@ from maze import Maze, MazeAction
 from plot import plot_utility_vs_iteration
 
 
-def solve_MDP(grid: list, algo: int, num_policy_evaluation: int = 1):
+def solve_MDP(grid: list, algo: int, discount_gamma: float = 1.0,
+              max_error: float = 1.0, num_policy_evaluation: int = 1):
     """
-    Calls the "Value Iteration" and "Policy Iteration" algorithms and saves the results
+    params:
+    - grid (list): maze environment
+    - algo (int): Value Iteration (1) and Policy Iteration (2)
+    - discount_gamma (float): discount factor for future state
+    - max_error (float): maximum error allowed in the utility of any state
+    - num_policy_evaluation (int): number of times to do policy evaluation (k) to obtain
+                                   better estimates for the utilities, U_i+1(s) with default value of 1
+
+    Calls the "Value Iteration" and "Policy Iteration" methods and saves the results
     """
 
-    if (algo == 1):
+    # Initialise the MDP, maze environment
+    maze = Maze(
+        grid=grid,
+        reward_mapping=REWARD_MAPPING,
+        starting_point=STARTING_POINT,
+        discount_gamma=discount_gamma
+    )
+
+    # δ, the maximum change in the utility of any state in an iteration
+    delta = "%.3f" % (max_error * (1 - discount_gamma) / discount_gamma)
+
+    if algo == MDP_ALGORITHM['VI']:
         print()
-        print("MDP : Value Iteration")
-        print("---------------------")
-        maze = Maze(
-            grid=grid,
-            reward_mapping=REWARD_MAPPING,
-            starting_point=STARTING_POINT,
-            discount_gamma=DISCOUNT_FACTOR
-        )
-        result = value_iteration(maze, max_error=MAX_ERROR)
+        print("MDP : Value Iteration (ε={}, δ={})".format(max_error, delta))
+        print("--------------------------------------")
 
-        _show_maze_result(maze, result, 'value_iteration_result.txt')
+        result = value_iteration(maze, max_error=max_error)
+
+        _show_maze_result(maze, result, 'value_iteration_result_(δ={}).txt'.format(delta))
 
         plot_utility_vs_iteration(
             result['iteration_utilities'],
-            save_file_name='value_iteration_utilities.png'
+            save_file_name='value_iteration_plot_(δ={}).png'.format(delta)
         )
-    elif (algo == 2):
+    elif algo == MDP_ALGORITHM['PI']:
         print("MDP : Policy Iteration")
         print("----------------------")
-        maze = Maze(
-            grid=grid,
-            reward_mapping=REWARD_MAPPING,
-            starting_point=STARTING_POINT,
-            discount_gamma=DISCOUNT_FACTOR
-        )
-        result = policy_iteration(maze, num_policy_evaluation)  # num_policy_evaluation=25
 
-        _show_maze_result(maze, result, 'policy_iteration_result.txt')
+        result = policy_iteration(maze, num_policy_evaluation)
+
+        _show_maze_result(maze, result, 'policy_iteration_result_(npe={}).txt'.format(num_policy_evaluation))
 
         plot_utility_vs_iteration(
             result['iteration_utilities'],
-            save_file_name='policy_iteration_utilities.png'
+            save_file_name='policy_iteration_plot_(npe={}).png'.format(num_policy_evaluation)
         )
     else:
         print("Supported MDP algorithm option is only 1 or 2")
+
 
 def _show_maze_result(maze, result, save_file_name=None):
     """
@@ -96,6 +105,7 @@ def _show_maze_result(maze, result, save_file_name=None):
             print()
             lines.append(' ')
 
+        # Keep ending zero after rounding : "%.2f" % round(utilities[state_position], 2) but it becomes a string
         optimal_utility_grid[state_position[0]][state_position[1]] = round(utilities[state_position], 2)
 
         action = optimal_policy[state_position]
@@ -130,8 +140,14 @@ if __name__ == '__main__':
     pp = pprint.PrettyPrinter(indent=2)
     pp.pprint(GRID)
 
-    # Solve MDP with Value Iteration
-    solve_MDP(GRID, MDP_ALGORITHM['VI'])
+    # Solve MDP with Value Iteration (ε = MAX_ERROR) # 10, 78
+    # solve_MDP(GRID, MDP_ALGORITHM['VI'], discount_gamma=DISCOUNT_FACTOR, max_error=MAX_ERROR)
 
-    # # Solve MDP with Policy Iteration (Original)
-    solve_MDP(GRID, MDP_ALGORITHM['PI'], num_policy_evaluation=1)
+    # Solve MDP with Value Iteration (ε = 0.1)
+    solve_MDP(GRID, MDP_ALGORITHM['VI'], discount_gamma=DISCOUNT_FACTOR, max_error=EPSILON)
+
+    # Solve MDP with Policy Iteration (Standard)
+    # solve_MDP(GRID, MDP_ALGORITHM['PI'], discount_gamma=DISCOUNT_FACTOR, num_policy_evaluation=1)
+
+    # Solve MDP with Policy Iteration (Modified) # 9, 25
+    # solve_MDP(GRID, MDP_ALGORITHM['PI'], discount_gamma=DISCOUNT_FACTOR, num_policy_evaluation=4)

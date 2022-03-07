@@ -17,9 +17,9 @@ Implements methods :
 
 Internal methods
 - _bellman_equation
+- _get_expected_utility
 - _policy_evaluation
 - _policy_improvement
-- _get_expected_utility
 """
 
 from mdp import MarkovDecisionProcess
@@ -29,7 +29,7 @@ from maze import MazeAction
 # Reference: Figure 17.4 of “Artificial Intelligence: A Modern Approach”
 # MarkovDecisionProcess implements transition_model, reward_function and get_next_states
 # Value Iteration algorithm
-def value_iteration(mdp: MarkovDecisionProcess, max_error=1, verbose: bool=False):
+def value_iteration(mdp: MarkovDecisionProcess, max_error: float = 1.0, verbose: bool = False):
     """
     params:
     - mdp (MarkovDecisionProcess): an MDP with 
@@ -231,7 +231,7 @@ def policy_iteration(mdp: MarkovDecisionProcess, num_policy_evaluation: int = 1,
         'optimal_policy': {
             (row, col): best action to take at this state (MazeAction)
         },
-        'num_iterations': num_iterations (int),
+        'num_iterations': policy_iterations (int),
         'iteration_utilities': {
             (row, col): [utility for each iteration (float)]
         }
@@ -258,6 +258,7 @@ def policy_iteration(mdp: MarkovDecisionProcess, num_policy_evaluation: int = 1,
     # Keep track if policy for all states in S become unchanged after Policy Improvement
     unchanged = False
     num_iterations = 0
+    policy_iterations = 0
 
     while not unchanged:
         # U ← POLICY-EVALUATION (π, U, mdp)
@@ -271,7 +272,10 @@ def policy_iteration(mdp: MarkovDecisionProcess, num_policy_evaluation: int = 1,
         policy, unchanged = _policy_improvement(mdp, policy, utilities)
 
         num_iterations += num_policy_evaluation
-        print('unchanged:', unchanged, 'at iteration:', num_iterations)
+        policy_iterations += 1
+        print('unchanged: {}; Policy Iterations: {}; Policy Evaluation iterations: {}'.format(unchanged,
+                                                                                              policy_iterations,
+                                                                                              num_iterations))
 
         if verbose:
             print('iteration:', num_iterations)
@@ -292,7 +296,7 @@ def policy_iteration(mdp: MarkovDecisionProcess, num_policy_evaluation: int = 1,
     return {
         'utilities': utilities,
         'optimal_policy': policy,
-        'num_iterations': num_iterations,
+        'num_iterations': policy_iterations, # num_iterations
         'iteration_utilities': iteration_utilities,
     }
 
