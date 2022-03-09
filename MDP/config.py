@@ -47,7 +47,7 @@ REFERENCE_MAX_ERROR = 1.4
 
 # For Value Iteration :
 # ε, the maximum error allowed in the utility of any state
-MAX_ERROR = 10 # 20
+MAX_ERROR = 78 # 10, 30, 79
 
 # To get close to equilibrium, we can use the formula to compute the Maximum error, ε = c · Rmax
 # Used to compute δ, the maximum change in the utility of any state in an iteration (|U′(s) − U(s)| < ε(1−γ)/γ)
@@ -56,7 +56,7 @@ Rmax = 1
 EPSILON = c * Rmax
 
 # For Policy Iteration :
-NUM_POLICY_EVALUATION = 100
+NUM_POLICY_EVALUATION = 4 # 25
 
 # Mapping of MazeAction to unicode directions for visualisation
 DIRECTION = {

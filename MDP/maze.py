@@ -64,24 +64,24 @@ class Maze(MarkovDecisionProcess):
                     next_state_1 (tuple): probability,
                     next_state_2 (tuple): probability,
                     next_state_3 (tuple): probability,
-                },
+                }
             }
         }
         - actions: list of available actions
-        - discount (the future individual state, 0 < gamma < 1)
+        - discount (the future individual state, 0 < γ < 1)
         """
         self.grid = grid
         self.reward_mapping = reward_mapping
         self.starting_point = starting_point
 
-        self.width = len(grid)      # row
-        self.height = len(grid[0])  # col
+        self.height = len(grid)    # row
+        self.width = len(grid[0])  # col
 
         possible_states = {
             (row, col): {}
-            for row in range(self.width)  # col needs height instead
-            for col in range(self.height) # row needs width instead
-            if grid[row][col] != 'w'      # non-wall states
+            for row in range(self.height)
+            for col in range(self.width)
+            if grid[row][col] != 'w'  # non-wall states
         }
 
         # All possible actions for any non-wall states
