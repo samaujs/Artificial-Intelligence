@@ -20,6 +20,11 @@ from generate_maze import random_maze
 from maze import Maze
 from plot import plot_utility_vs_iteration
 
+# Parsing input parameters
+import parse_mdp_args
+
+# Global pretty print setup with indentation
+pp = pprint.PrettyPrinter(indent=2)
 
 def solve_MDP(grid: list, algo: int, discount_gamma: float = 1.0,
               max_error: float = 1.0, num_policy_evaluation: int = 1,
@@ -48,9 +53,8 @@ def solve_MDP(grid: list, algo: int, discount_gamma: float = 1.0,
     delta = "%.3f" % (max_error * (1 - discount_gamma) / discount_gamma)
 
     if algo == MDP_ALGORITHM['VI']:
-        print()
         print("MDP : Value Iteration (ε={}, δ={})".format(max_error, delta))
-        print("--------------------------------------")
+        print("---------------------------------------")
 
         result = value_iteration(maze, max_error=max_error)
 
@@ -85,7 +89,7 @@ def _show_maze_result(maze, result, save_file_name=None):
     params:
     - maze (Maze)
     - result (dict): result of solving a maze
-    - save_file_name (str): name of file to save plot as; defaults to None (not saved)
+    - save_file_name (str): file name with directory path to save information; default is None (which is not saved)
     """
     lines = []
 
@@ -129,48 +133,68 @@ def _show_maze_result(maze, result, save_file_name=None):
 
     if save_file_name is not None:
         # RESULTS_DIR_PATH subdirectory ('./results') has been created
-        with open(RESULTS_DIR_PATH + save_file_name, 'w') as file:
+        with open(save_file_name, 'w') as file:
             for line in lines:
                 file.write(line + '\n')
             # print(optimal_policy_grid, file)
 
 
-# Main Program
-if __name__ == '__main__':
+# Start of Program from command line
+def main():
+    # Parsing defaults for all program parameters unless provided by user
+    prog_args = parse_mdp_args.arg_parse()
+
     # Make sure directory exist for saving results
-    os.makedirs(RESULTS_DIR_PATH, exist_ok=True)
+    os.makedirs(prog_args.datadir, exist_ok=True)
 
-    print("--- Solving MDP with the following maze ---")
-    pp = pprint.PrettyPrinter(indent=2)
-    # pp.pprint(GRID)
+    # Pre-defined maze environment
+    generated_maze = GRID
 
-    # Solve MDP with Value Iteration (ε = MAX_ERROR) # 10, 78
-    # solve_MDP(GRID, MDP_ALGORITHM['VI'], discount_gamma=DISCOUNT_FACTOR, max_error=MAX_ERROR,
-    #           save_filename_prefix='value_iteration')
+    # Check if --gen_maze exists in the command line parameter
+    if prog_args.gen_maze:
+        print()
+        print("Generate maze with parameters :")
+        print("---------------------------------------")
+        print('g : {}, b : {}, w : {}, maze_width : {}'.format(prog_args.num_g_states,
+                                                               prog_args.num_b_states,
+                                                               prog_args.num_w_states,
+                                                               prog_args.maze_width))
+        print()
 
-    # Solve MDP with Value Iteration (ε = 0.1)
-    # solve_MDP(GRID, MDP_ALGORITHM['VI'], discount_gamma=DISCOUNT_FACTOR, max_error=EPSILON,
-    #           save_filename_prefix='value_iteration')
+        # Generate maze environment
+        generated_maze = random_maze(num_g_states=prog_args.num_g_states,
+                                     num_b_states=prog_args.num_b_states,
+                                     num_w_states=prog_args.num_w_states,
+                                     maze_width=prog_args.maze_width)
 
-    # Solve MDP with Policy Iteration (Standard)
-    # solve_MDP(GRID, MDP_ALGORITHM['PI'], discount_gamma=DISCOUNT_FACTOR, num_policy_evaluation=1,
-    #           save_filename_prefix='policy_iteration')
+    print()
+    print('γ : {}, ε : {}, k : {}, fn_prefix : {}, datadir : {}'.format(prog_args.discount_gamma,
+                                                                        prog_args.max_error,
+                                                                        prog_args.num_pe,
+                                                                        prog_args.save_filename_prefix,
+                                                                        prog_args.datadir))
 
-    # Solve MDP with Policy Iteration (Modified) # 9, 25
-    # solve_MDP(GRID, MDP_ALGORITHM['PI'], discount_gamma=DISCOUNT_FACTOR, num_policy_evaluation=4,
-    #           save_filename_prefix='policy_iteration')
+    if prog_args.algo == MDP_ALGORITHM['VI']:
+        # Solve MDP with Value Iteration (ε, set max_error=0.1)
+        solve_MDP(grid=generated_maze, algo=MDP_ALGORITHM['VI'], discount_gamma=prog_args.discount_gamma,
+                  max_error=prog_args.max_error,
+                  save_filename_prefix='./' + prog_args.datadir + '/' + prog_args.save_filename_prefix)
 
-    # BONUS portion:
-    print("------------------ BONUS ------------------")
+    elif prog_args.algo == MDP_ALGORITHM['PI']:
+        # Solve MDP with Policy Iteration (Standard, set num_pe=1)
+        solve_MDP(grid=generated_maze, algo=MDP_ALGORITHM['PI'], discount_gamma=prog_args.discount_gamma,
+                  num_policy_evaluation=prog_args.num_pe,
+                  save_filename_prefix='./' + prog_args.datadir + '/' + prog_args.save_filename_prefix)
 
-    # Generate random maze
-    generated_maze = random_maze(num_g_states=6, num_b_states=5, num_w_states=5, maze_width=6)
+    else:
+          print("Supported MDP algorithm option is only 1 or 2")
+
+    print("\n--- Solving MDP with the following maze ---")
     pp.pprint(generated_maze)
+    print()
 
-    # Solve MDP with Value Iteration
-    solve_MDP(generated_maze, MDP_ALGORITHM['VI'], discount_gamma=DISCOUNT_FACTOR, max_error=MAX_ERROR,
-              save_filename_prefix='value_iteration_bonus')
 
-    # Solve MDP with Policy Iteration (Modified)
-    solve_MDP(generated_maze, MDP_ALGORITHM['PI'], discount_gamma=DISCOUNT_FACTOR, num_policy_evaluation=4,
-              save_filename_prefix='policy_iteration_bonus')
+# Main Program
+if __name__ == "__main__":
+    main()
+

@@ -18,7 +18,7 @@ def plot_utility_vs_iteration(iteration_utilities, save_file_name=None):
     - iteration_utilities: {
         (row, col): [utility for each iteration (float)]
     }
-    - save_file_name (str): name of file to save plot as; defaults to None (not saved)
+    - save_file_name (str): file name with directory path to save plot; default is None (which is not saved)
     """
     plt.figure(figsize=(16, 8))
 
@@ -32,6 +32,6 @@ def plot_utility_vs_iteration(iteration_utilities, save_file_name=None):
     plt.ylabel('Utility estimates')
 
     if save_file_name is not None:
-        plt.savefig(RESULTS_DIR_PATH + '/' + save_file_name)
+        plt.savefig(save_file_name)
 
     plt.show()

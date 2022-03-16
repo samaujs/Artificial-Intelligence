@@ -17,7 +17,22 @@ def _random_states(num_g_states: int = 1,
                    num_b_states: int = 1,
                    num_w_states: int = 1,
                    maze_width: int = 2):
+    """
+    Create the list of respective states (green, brown, wall) to be used for maze construction
 
+    params:
+    - num_g_states (int): the number of green cells to be created
+    - num_b_states (int): the number of brown cells to be created
+    - num_w_states (int): the number of wall cells to be created
+    - maze_width (int): the width of the squared maze to be created
+
+    return:
+    (
+        a sorted list of randomly generated green states (list),
+        a sorted list of randomly generated brown states (list),
+        a sorted list of randomly generated wall states (list)
+    )
+    """
     # Initialise all states
     states_g = []
     states_b = []
@@ -71,7 +86,19 @@ def _random_states(num_g_states: int = 1,
 
 
 def random_maze(num_g_states: int = 1, num_b_states: int = 1, num_w_states: int = 1, maze_width: int = 2):
-    # Check parameters are valid
+    """
+    Construct a random maze environment with provided information to be used for MDP
+
+    params:
+    - num_g_states (int): the number of green cells to be created
+    - num_b_states (int): the number of brown cells to be created
+    - num_w_states (int): the number of wall cells to be created
+    - maze_width (int): the width of the squared maze to be created
+
+    return:
+    constructed maze environment (list)
+    """
+    # Check provided parameters are valid
     if num_g_states < 1 or num_b_states < 1 or num_w_states < 1:
         print("The maze must have at least one green, one brown and one wall state!")
         return []
