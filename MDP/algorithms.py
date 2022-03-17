@@ -11,7 +11,9 @@
 # Created by  : Au Jit Seah
 #######################################################################################################
 """
-Implements methods :
+Implements the Value Iteration and Policy Iteration methods.
+
+Public methods :
 - value_iteration
 - policy_iteration
 

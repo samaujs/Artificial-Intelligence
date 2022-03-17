@@ -1,3 +1,23 @@
+#######################################################################################################
+# This file defines the method to parse the command line parameter for solving the MDP
+# - Defines the parameters to be parsed and initialised with the respective default values
+# Filename    : parse_mdp_args.py
+# Created by  : Au Jit Seah
+#######################################################################################################
+"""
+Parsing the parameters from the command line with following formats and examples :
+
+python3 main.py --algo=<ALGO> --discount_gamma=<DISCOUNT_GAMMA>
+                --max_error=<MAX_ERROR> --num_pe=<NUM_PE>
+                --save_filename_prefix=<SAVE_FILENAME_PREFIX> --datadir=<DATADIR>
+                --gen_maze
+                --num_g_states <NUM_G_STATES> —num_b_states <NUM_B_STATES>
+                --num_w_states <NUM_W_STATES> --maze_width <MAZE_WIDTH>
+
+Implements method :
+- arg_parse
+"""
+
 import argparse
 
 from config import *

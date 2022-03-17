@@ -5,8 +5,12 @@
 # Created by  : Au Jit Seah
 #######################################################################################################
 """
-Method for plotting the results
+To plot utility against iterations and save the plot in a specified sub-directory with filename.
+
+Implements methods :
+- plot_utility_vs_iteration
 """
+
 import matplotlib.pyplot as plt
 
 from config import RESULTS_DIR_PATH

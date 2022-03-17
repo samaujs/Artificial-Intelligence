@@ -5,7 +5,11 @@
 # Created by  : Au Jit Seah
 #######################################################################################################
 """
-Main method
+Implements the main method to call the methods for solving the MDP, print and save the maze results.
+
+Implements methods :
+- solve_MDP
+- _show_maze_result
 """
 
 # Import common libraries
@@ -187,7 +191,7 @@ def main():
                   save_filename_prefix='./' + prog_args.datadir + '/' + prog_args.save_filename_prefix)
 
     else:
-          print("Supported MDP algorithm option is only 1 or 2")
+          print("Supported MDP algorithm option is only; 1: Value Iteration or 2: Policy Iteration")
 
     print("\n--- Solving MDP with the following maze ---")
     pp.pprint(generated_maze)

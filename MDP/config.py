@@ -1,13 +1,13 @@
 #######################################################################################################
 # This file defines the maze environment and variables used for solving the MDP
 # - discount gamma factor in Value Iteration and Policy Iteration algorithms
-# - accepted maximum error to terminate Value Iteration
-# - accepted maximum number of iterations for Policy Iteration
+# - maximum permitted error to terminate Value Iteration
+# - number of Policy Evaluations for Modified Policy Iteration
 # Filename    : config.py
 # Created by  : Au Jit Seah
 #######################################################################################################
 """
-Constants and Parameters.
+Defines the constant values required for the MDP problem.
 """
 
 # Pre-defines a 2-D array maze

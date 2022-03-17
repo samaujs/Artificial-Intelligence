@@ -10,6 +10,14 @@
 # Filename    : generate_maze.py
 # Created by  : Au Jit Seah
 #######################################################################################################
+"""
+Create random states and generate maze environment based on provided parameters
+
+Implements methods :
+- _random_states
+- random_maze
+"""
+
 import random
 
 
