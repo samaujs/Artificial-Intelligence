@@ -151,8 +151,8 @@ def main():
     # Make sure directory exist for saving results
     os.makedirs(prog_args.datadir, exist_ok=True)
 
-    # Pre-defined maze environment
-    generated_maze = GRID
+    # Use th pre-defined maze environment (GRID, GRID_C1, GRID_C2, GRID_C3)
+    generated_maze = GRID  # default
 
     # Check if --gen_maze exists in the command line parameter
     if prog_args.gen_maze:

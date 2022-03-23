@@ -43,7 +43,7 @@ python3 main.py --algo=<ALGO> --discount_gamma=<DISCOUNT_GAMMA>
                 --num_w_states <NUM_W_STATES> --maze_width <MAZE_WIDTH>
 ```
 
-#### Value Iteration (=25, =0.253) :
+#### Value Iteration (ε=25, δ=0.253) :
 ```
 python3 main.py --algo=1 --discount_gamma=0.99 --max_error=25
                 --save_filename_prefix=value_iteration --datadir=vi_bonus_results
@@ -53,7 +53,7 @@ python3 main.py --algo=1 --discount_gamma=0.99 --max_error=25
 
 ```
 
-#### Policy Iteration (num_policy_evaluation, k = 4) :
+#### Policy Iteration (num_policy_evaluation, k = 3) :
 ```
 python3 main.py --algo=2 --discount_gamma=0.99 --num_pe=3
                 --save_filename_prefix=policy_iteration --datadir=pi_bonus_results
