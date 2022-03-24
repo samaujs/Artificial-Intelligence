@@ -30,6 +30,7 @@ import parse_mdp_args
 # Global pretty print setup with indentation
 pp = pprint.PrettyPrinter(indent=2)
 
+
 def solve_MDP(grid: list, algo: int, discount_gamma: float = 1.0,
               max_error: float = 1.0, num_policy_evaluation: int = 1,
               save_filename_prefix=None):
@@ -151,7 +152,7 @@ def main():
     # Make sure directory exist for saving results
     os.makedirs(prog_args.datadir, exist_ok=True)
 
-    # Use th pre-defined maze environment (GRID, GRID_C1, GRID_C2, GRID_C3)
+    # Use the pre-defined maze environment (GRID, GRID_C1, GRID_C2, GRID_C3)
     generated_maze = GRID  # default
 
     # Check if --gen_maze exists in the command line parameter

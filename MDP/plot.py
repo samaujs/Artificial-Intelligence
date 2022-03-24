@@ -7,13 +7,11 @@
 """
 To plot utility against iterations and save the plot in a specified sub-directory with filename.
 
-Implements methods :
+Implements method :
 - plot_utility_vs_iteration
 """
 
 import matplotlib.pyplot as plt
-
-from config import RESULTS_DIR_PATH
 
 
 def plot_utility_vs_iteration(iteration_utilities, save_file_name=None):
