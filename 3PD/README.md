@@ -16,7 +16,7 @@
 > - U(DCC) > U(CCC) > U(DCD) > U(CCD) > U(DDD) > U(CDD)
 > - D is the dominant strategy for any player
 
-### The commom complex player strategies are :
+### The common complex player strategies are :
 
 > 1. **NicePlayer** : Always cooperate.
 > 2. **NastyPlayer** : Always defect.
