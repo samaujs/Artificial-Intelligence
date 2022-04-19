@@ -134,66 +134,84 @@ public class ThreePrisonersDilemma {
 
 	// ** added a new player strategy **
 	class Sam_Player extends Player {
+		// Store the number of defects taken by opponents
+		int opp1_defects = 0;
+		int opp2_defects = 0;
+
+		// Store the round number where agent retaliate against defects
+		int retaliateAtRound = -1;
+
+		// Observe this number of previous rounds to check if opponents want to cooperate
+		int observationRounds = 3;
+		// No. of rounds to reverse previous defection effects to encourage opponents to cooperate
+		int reverseRounds = -2;
+
 		int selectAction(int n, int[] myHistory, int[] oppHistory1, int[] oppHistory2) {
+			// Record defection counts after first round
+			if (n > 0) {
+				opp1_defects += oppHistory1[n - 1];
+				opp2_defects += oppHistory2[n - 1];
+			}
+
 			// Starts with cooperation
-			if (n == 0)
-					return 0;
-
-			// Punish defection immediately gives a 25% boost and attempt to take extra bit of payoff
-			if (oppHistory1[n-1] == 1 || oppHistory2[n-1] == 1 || n >= 109)
-					return 1;
-
-			// Both opponents previous round is the same, choose action like Tit-For-Tat; but not really useful
-			// if (oppHistory1[n-1] == oppHistory2[n-1])
-			//		return oppHistory1[n-1];
-
-			// Attempt to reset to cooperation from previous defection; but not really useful
-			// if (myHistory[n-1] == 1)
-			//		return 0;
-
-			// For odd rounds - play like the Tolerant player
-			if (n % 2 != 0) {
-					int opponentCoop = 0;
-					int opponentDefect = 0;
-
-					for (int i = 0; i < n; i++) {
-						if (oppHistory1[i] == 0)
-								opponentCoop += 1;
-						else
-								opponentDefect += 1;
-
-						if (oppHistory2[i] == 0)
-								opponentCoop += 1;
-						else
-								opponentDefect += 1;
-					}
-
-					// Choose to only defects if at least half of the other players' actions have been defects
-					return (opponentDefect > opponentCoop) ? 1 : 0;
+			if (n == 0) {  // n < observationRounds
+				return 0;
 			}
 
-			// For even rounds - check history of defections - GuiltyPlayer
-			int myNumDefections = 0;
-			int oppNumDefections1 = 0;
-			int oppNumDefections2 = 0;
+			// Loop rounds with cooperation whereby agent cooperates in hope to reverse the effects of retaliation
+			// Nullify by cooperating to reverse effect with preset -(retaliateAtRound + 1) rounds
+			// Showing good will with cooperation for at least one more round
+			if (retaliateAtRound < -1) {
+				retaliateAtRound += 1;
 
-			// Checks the total number of defections for both opponents and oneself
-			for (int index = 0; index < n; ++index) {
-					myNumDefections += myHistory[index];
-					oppNumDefections1 += oppHistory1[index];
-					oppNumDefections2 += oppHistory2[index];
+				// Resets the opponent defects when agent cooperates
+				opp1_defects = 0;
+				opp2_defects = 0;
+				return 0;
 			}
 
-			// Player has greater or equal no. of defections than both opponents, player should be nice and cooperate
-			// || does not make substantial differences
-			if (myNumDefections >= oppNumDefections1 && myNumDefections >= oppNumDefections2)
-					// Cooperates whenever possible : ranking is around 513-613
+			// Check at round retaliated + observationRounds to measure if opponents like to cooperate
+			if (retaliateAtRound > -1 && n == retaliateAtRound + observationRounds + 1) {
+				// Store the number of cooperation during observationRounds
+				int opp1_coop = 0;
+				int opp2_coop = 0;
+
+				for (int prevRound = 0; prevRound < observationRounds; prevRound++) {
+					// Check if opponents want to cooperate in the observationRounds
+					opp1_coop += oppHistory1[n - 1 - prevRound] == 0 ? 1 : 0;
+					opp2_coop += oppHistory2[n - 1 - prevRound] == 0 ? 1 : 0;
+				}
+
+				// If both opponents wish to cooperate in the observationRounds and previous round
+				// Agent will cooperate with opponents immediately
+				if (opp1_coop > 1 && opp2_coop > 1 && (oppHistory1[n - 1] + oppHistory2[n - 1]) == 0) {
+					// When retaliateAtRound is negative, player will cooperate with the count goes backwards from -2
+					// -2 indicates 1 round where agent plays cooperation to reverse effect of defect
+					// -5 indicates 4 rounds where agent plays cooperation to reverse effect
+					retaliateAtRound = reverseRounds;  // default value -2
+
+					// Resets the opponent defects when agent cooperates
+					opp1_defects = 0;
+					opp2_defects = 0;
 					return 0;
-			else
-					// Defects make ranking suffers greatly (approx. 10)
+				} else {
+					// agent defects at round n when there are no intentions of cooperation in the observationRounds
+					retaliateAtRound = n;
 					return 1;
+				}
+			}
+
+			// Plays defection immediately when one of the opponents defected and attempt to take extra bit of payoff
+			if (opp1_defects + opp2_defects > 0 || n >= 109) {
+				// Stores the round number when defected
+				retaliateAtRound = n;
+				return 1;
+			}
+
+			// Cooperation is the default action; be nice at all times
+			return 0;
 		}
-	}
+	} // In 1,000 Tournament runs, agent ranks around 613-678
 
 	/* In our tournament, each pair of strategies will play one match against each other. 
 	 This procedure simulates a single match and returns the scores. */
@@ -239,7 +257,7 @@ public class ThreePrisonersDilemma {
 		case 3: return new TolerantPlayer();
 		case 4: return new FreakyPlayer();
 		case 5: return new T4TPlayer();
-
+		
 		// ** added new player strategy **
 		case 6: return new Sam_Player();
 		}
@@ -270,18 +288,12 @@ public class ThreePrisonersDilemma {
 		}
 
 		for (int i=0; i<instance.numOfTournaments; i++) {
-			System.out.println("Tournament " + (i+1) + " :");
-			System.out.println("------------------------------------------------------------------------");
+			System.out.println();
+			System.out.println(" For Tournament run : " + (i+1));
+			System.out.println("-------------------------------------------------------------------------------------");
 			// Run tournaments to evaluate the performance of individual strategy based on average ranking
 			instance.runTournament(players_scores, players_rank_counts);
 			System.out.println("-------------------------------------------------------------------------------------");
-		}
-
-		// Check for all stored total scores for each tournament run
-		for (int i=0; i<instance.numPlayers; i++) {
-			System.out.println(instance.makePlayer(i).name() +
-							   " with scores : " + players_scores[i] +
-							   " with rank_counts : " + players_rank_counts[i]);
 		}
 
 		// Storing all total scores for performance analysis
@@ -289,7 +301,7 @@ public class ThreePrisonersDilemma {
 		instance.FileOutput(players_rank_counts, "./3PD_RankCounts.csv", 2);
 	}
 
-	boolean verbose = true;  // set verbose = false if you get too much text output
+	boolean verbose = false;  // set verbose = true if more details are required
 
 	// takes an argument on the number of rounds and player_scores
 	void runTournament(ArrayList<Double>[] players_scores, ArrayList<Integer>[] players_rank_counts) {
@@ -351,7 +363,6 @@ public class ThreePrisonersDilemma {
 		for (int i=0; i<numPlayers; i++) {
 			// Store of the scores for each player in each tournament
 			players_scores[i].add((double) totalScore[i]);
-			System.out.println(makePlayer(i).name() + " scores : " + players_scores[i]);
 
 			// sortedOrder[0] stores the best player index in a tournament run based on the makePlayer sequence
 			// Increment rank count per tournament run
@@ -361,25 +372,32 @@ public class ThreePrisonersDilemma {
 
 			// Increment the rank counter for each player
 			players_rank_counts[playerIndex].set(i, currentRankCountValue+1);
+
+			if (verbose) {
+				// Check for all stored total scores for each tournament run
+				System.out.println(makePlayer(i).name() + " with scores : " + players_scores[i] +
+								   "\nwith rank_counts : " + players_rank_counts[i]);
+			}
 		}
 
 		// Finally, print out the sorted results and included
-		if (verbose) System.out.println();
-			System.out.println("Tournament Results");
+		System.out.println("Tournament Results");
+		System.out.println("------------------");
 
-			// ** added to show the top 3 players **
-			for (int i=0; i<3; i++) {
-				System.out.println("The top " + (i+1)  + " player for this tournament : " +
-								   makePlayer(sortedOrder[i]).name());
-			}
+		// ** added to show the top 3 players **
+		for (int i=0; i<3; i++) {
+			System.out.println("The top " + (i+1)  + " player for this tournament : " +
+							   makePlayer(sortedOrder[i]).name());
+		}
 
-			System.out.println("-------------------------------------------------------------------------------------");
-			// ** modified the flow and added to show the player accumulated rank count details **
-			for (int i=0; i<numPlayers; i++) {
-				System.out.println(makePlayer(sortedOrder[i]).name() + ": " +
-								   totalScore[sortedOrder[i]] + " points; with rank counts : " +
-								   players_rank_counts[sortedOrder[i]]);
-			}
+		System.out.println("-------------------------------------------------------------------------------------");
+		// ** modified the flow and added to show the player accumulated rank count details **
+		for (int i=0; i<numPlayers; i++) {
+			// totalScore[sortedOrder[i]] shows the average total score in tournament run for player strategy
+			System.out.println(makePlayer(sortedOrder[i]).name() + ": " +
+							   totalScore[sortedOrder[i]] + " points; with rank counts : " +
+							   players_rank_counts[sortedOrder[i]]);
+		}
 
 	} // end of runTournament()
 

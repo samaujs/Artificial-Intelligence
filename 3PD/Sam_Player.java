@@ -1,83 +1,79 @@
-/**
- # To be copied from ThreePrisonersDilemma.java after running the tournament
- # Filename    : Au_JitSeah_Player.java
- # Created by  : Au Jit Seah
- */
+class Sam_Player extends Player {
+    // Store the number of defects taken by opponents
+    int opp1_defects = 0;
+    int opp2_defects = 0;
 
+    // Store the round number where agent retaliate against defects
+    int retaliateAtRound = -1;
 
-public class Sam_Player { // extends Player
+    // Observe this number of previous rounds to check if opponents want to cooperate
+    int observationRounds = 3;
+    // No. of rounds to reverse previous defection effects to encourage opponents to cooperate
+    int reverseRounds = -2;
+
     int selectAction(int n, int[] myHistory, int[] oppHistory1, int[] oppHistory2) {
+        // Record defection counts after first round
+        if (n > 0) {
+            opp1_defects += oppHistory1[n - 1];
+            opp2_defects += oppHistory2[n - 1];
+        }
+
         // Starts with cooperation
-        if (n == 0)
+        if (n == 0) {  // n < observationRounds
             return 0;
+        }
 
-        // Punish defection immediately gives a 25% boost and attempt to take extra bit of payoff
-        if (oppHistory1[n-1] == 1 || oppHistory2[n-1] == 1 || n >= 109)
-            return 1;
+        // Loop rounds with cooperation whereby agent cooperates in hope to reverse the effects of retaliation
+        // Nullify by cooperating to reverse effect with preset -(retaliateAtRound + 1) rounds
+        // Showing good will with cooperation for at least one more round
+        if (retaliateAtRound < -1) {
+            retaliateAtRound += 1;
 
-        // Both opponents previous round is the same, choose action like Tit-For-Tat; but not really useful
-        // if (oppHistory1[n-1] == oppHistory2[n-1])
-        //		return oppHistory1[n-1];
+            // Resets the opponent defects when agent cooperates
+            opp1_defects = 0;
+            opp2_defects = 0;
+            return 0;
+        }
 
-        // Attempt to reset to cooperation from previous defection; but not really useful
-        // if (myHistory[n-1] == 1)
-        //		return 0;
+        // Check at round retaliated + observationRounds to measure if opponents like to cooperate
+        if (retaliateAtRound > -1 && n == retaliateAtRound + observationRounds + 1) {
+            // Store the number of cooperation during observationRounds
+            int opp1_coop = 0;
+            int opp2_coop = 0;
 
-		//	int defect_threshold = 1;
-		//	boolean cooperate = false;
-		//	if (n > defect_threshold)
-		//			for (int i = 0; i < defect_threshold; i++) {
-		//				if (myHistory[n-(i+1)] == 0)
-		//						cooperate = true;
-		//			}
-
-					// Try to cooperate if myHistory more than defect_threshold
-		//			if (cooperate == false) {
-		//				System.out.println("Reset to Cooperate after defect threshold");
-		//				return 0;
-		//			}
-
-        // For odd rounds - play like the Tolerant player
-        if (n % 2 != 0) {
-            int opponentCoop = 0;
-            int opponentDefect = 0;
-
-            for (int i = 0; i < n; i++) {
-                if (oppHistory1[i] == 0)
-                    opponentCoop += 1;
-                else
-                    opponentDefect += 1;
-
-                if (oppHistory2[i] == 0)
-                    opponentCoop += 1;
-                else
-                    opponentDefect += 1;
+            for (int prevRound = 0; prevRound < observationRounds; prevRound++) {
+                // Check if opponents want to cooperate in the observationRounds
+                opp1_coop += oppHistory1[n - 1 - prevRound] == 0 ? 1 : 0;
+                opp2_coop += oppHistory2[n - 1 - prevRound] == 0 ? 1 : 0;
             }
 
-            // Choose to only defects if at least half of the other players' actions have been defects
-            return (opponentDefect > opponentCoop) ? 1 : 0;
+            // If both opponents wish to cooperate in the observationRounds and previous round
+            // Agent will cooperate with opponents immediately
+            if (opp1_coop > 1 && opp2_coop > 1 && (oppHistory1[n - 1] + oppHistory2[n - 1]) == 0) {
+                // When retaliateAtRound is negative, player will cooperate with the count goes backwards from -2
+                // -2 indicates 1 round where agent plays cooperation to reverse effect of defect
+                // -5 indicates 4 rounds where agent plays cooperation to reverse effect
+                retaliateAtRound = reverseRounds;  // default value -2
+
+                // Resets the opponent defects when agent cooperates
+                opp1_defects = 0;
+                opp2_defects = 0;
+                return 0;
+            } else {
+                // agent defects at round n when there are no intentions of cooperation in the observationRounds
+                retaliateAtRound = n;
+                return 1;
+            }
         }
 
-
-        // For even rounds - check history of defections - GuiltyPlayer
-        int myNumDefections = 0;
-        int oppNumDefections1 = 0;
-        int oppNumDefections2 = 0;
-
-        // Checks the total number of defections for both opponents and oneself
-        for (int index = 0; index < n; ++index) {
-            myNumDefections += myHistory[index];
-            oppNumDefections1 += oppHistory1[index];
-            oppNumDefections2 += oppHistory2[index];
-        }
-
-        // Player has greater or equal no. of defections than both opponents, player should be nice and cooperate
-        // || does not make substantial differences
-        if (myNumDefections >= oppNumDefections1 && myNumDefections >= oppNumDefections2)
-            // Cooperates whenever possible : ranking is around 513-613
-            return 0;
-        else
-            // Defects make ranking suffers greatly (approx. 10)
+        // Plays defection immediately when one of the opponents defected and attempt to take extra bit of payoff
+        if (opp1_defects + opp2_defects > 0 || n >= 109) {
+            // Stores the round number when defected
+            retaliateAtRound = n;
             return 1;
+        }
+
+        // Cooperation is the default action; be nice at all times
+        return 0;
     }
-}
+} // In 1,000 Tournament runs, agent ranks around 613-678

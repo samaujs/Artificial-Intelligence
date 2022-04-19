@@ -9,6 +9,29 @@
 > - The players Pay-offs matrix is :
 ![alt text](https://github.com/samaujs/Artificial-Intelligence/blob/main/3PD/Pay-offs%20Matrix.png?raw=true)
 
+### Definitions and Observations :
+
+> - Let D and C to represent Defection (1) and Cooperation (0) respectively
+> - Assume a symmetric game matrix, XCD could be written as XDC, where X may be C or D
+> - U(DCC) > U(CCC) > U(DCD) > U(CCD) > U(DDD) > U(CDD)
+> - D is the dominant strategy for any player
+
+### The commom complex player strategies are :
+
+> 1. **NicePlayer** : Always cooperate.
+> 2. **NastyPlayer** : Always defect.
+> 3. **RandomPlayer** : Cannot make up one’s mind, cooperates and defects randomly.
+> 4. **TolerantPlayer** : Only defects if at least half of the other players' actions have been defects.
+> 5. **FreakyPlayer** : Determines at the start of the match randomly to be nice or nasty at all times.
+> 6. **T4TPlayer** : Picks a random opponent at each play and uses the 'tit-for-tat' strategy against them.
+
+### New proposed player strategy with the following characteristics :
+> 1. **Play nice** : Always be nice and starts with cooperation.
+> 2. **Fast to anger** : Plays immediate defection when one of its two opponents plays defection.
+> 3. **Forgiving** : Does not hold grudges and seek for cooperation.
+> 4. **Reconciliation** : After player defects, player checks predefined observation rounds from history and attempts to reconcile defections with future cooperations.  If both opponents want to cooperate during these observation rounds, player will play nice immediately with cooperation.  The player will also cooperate for at least one more round (configurable) to show good will of cooperation.
+> 5. **Cunning** : Plays defection with attempt to take extra bit of payoff for rounds greater than 109 (last round if there are 110 rounds).
+
 ## Run the code :
 ```
 > javac ThreePrisonersDilemma.java
